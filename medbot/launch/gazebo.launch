@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+
+  <arg name="world" default="empty"/> 
+  <arg name="paused" default="false"/>
+  <arg name="use_sim_time" default="true"/>
+  <arg name="gui" default="true"/>
+  <arg name="headless" default="false"/>
+  <arg name="debug" default="false"/>
+  <arg name="verbose" default="false"/>
+ 
+  
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find medbot)/worlds/recovery4_final.world"/>
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+    <arg name="gui" value="$(arg gui)"/>
+    <arg name="headless" value="$(arg headless)"/>
+    <arg name="debug" value="$(arg debug)"/>
+    <arg name="verbose" value="$(arg verbose)"/>
+  </include>
+  
+  <arg name="x" default="-7.5"/>
+  <arg name="y" default="-1"/>
+  <arg name="z" default="0"/>
+  <arg name="rr" default="0"/>
+  <arg name="pp" default="0"/>
+  <arg name="yy" default="0"/>
+
+  <!--Spawn the robot in the world in the initial pose previously defined-->
+  <param name="robot_description" command="$(find xacro)/xacro '$(find medbot)/urdf/prova.xacro'"/>
+  <node name="mybot_spawn" pkg="gazebo_ros" type="spawn_model" output="screen"
+   args="-urdf -param robot_description -model mybot
+   -x $(arg x) -y $(arg y) -z $(arg z) -R $(arg rr) -P $(arg pp) -Y $(arg yy)" />
+</launch>
+

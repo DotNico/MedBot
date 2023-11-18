@@ -1,0 +1,9 @@
+<library path="src">
+    <class name="GUIControllerPlugin"
+        type="robot_teleop.rqt_plugin.GUIControllerPlugin"
+        base_class_type="rqt_gui_py::Plugin">
+        <description>
+            A GUI rqt plugin for a manual robot controll.
+        </description>
+    </class>
+</library>

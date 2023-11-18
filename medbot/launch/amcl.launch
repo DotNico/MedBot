@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<launch>
+
+  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find medbot)/urdf/prova.xacro'"/>
+
+  <!--Publish state of robot via tf-->
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+
+  <!-- Map server -->
+  <arg name="map_file" default="$(find medbot)/maps/map_recovery4.yaml"/>
+  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
+
+   <!-- Robot's initial pose -->
+   <arg name="initial_pose_x" default="-7.5"/>
+   <arg name="initial_pose_y" default="-1"/>
+   <arg name="initial_pose_a" default="0"/>
+
+  <!-- AMCL -->
+  <node pkg="amcl" type="amcl" name="amcl">
+
+    <param name="min_particles"             value="800"/>
+    <param name="max_particles"             value="3000"/>
+    <param name="kld_err"                   value="0.1"/>
+    <param name="update_min_d"              value="0.10"/>
+    <param name="update_min_a"              value="0.174533"/>
+    <param name="resample_interval"         value="1"/>
+    <param name="transform_tolerance"       value="0.7"/>
+    <param name="recovery_alpha_slow"       value="0.001"/>
+    <param name="recovery_alpha_fast"       value="0.1"/>
+    <param name="initial_pose_x"            value="$(arg initial_pose_x)"/>
+    <param name="initial_pose_y"            value="$(arg initial_pose_y)"/>
+    <param name="initial_pose_a"            value="$(arg initial_pose_a)"/>
+    <param name="gui_publish_rate"          value="50.0"/>
+
+    <remap from="scan"                      to="mybot/laser/scan"/>
+    <param name="laser_max_beams"           value="180"/>
+    
+    <param name="odom_model_type"           value="diff-corrected"/>
+    <param name="odom_alpha1"               value="0.1"/>
+    <param name="odom_alpha2"               value="0.1"/>
+    <param name="odom_alpha3"               value="0.1"/>
+    <param name="odom_alpha4"               value="0.1"/>
+    <param name="odom_frame_id"             value="odom"/>
+    <param name="base_frame_id"             value="chassis"/>
+
+  </node>
+
+<!--odom_topic-->
+  <arg name="cmd_vel_topic" default="/cmd_vel" />
+  <arg name="odom_topic" default="odom" />
+  <arg name="move_forward_only" default="false"/>
+  
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+    <rosparam file="$(find medbot)/param/costmap_common_params.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find medbot)/param/costmap_common_params.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find medbot)/param/local_costmap_params.yaml" command="load" />
+    <rosparam file="$(find medbot)/param/global_costmap_params.yaml" command="load" />
+    <rosparam file="$(find medbot)/param/move_base_params.yaml" command="load" />
+    <rosparam file="$(find medbot)/param/dwa_local_planner_params.yaml" command="load" />
+    <remap from="cmd_vel" to="$(arg cmd_vel_topic)"/>
+    <remap from="odom" to="$(arg odom_topic)"/>
+    <param name="DWAPlannerROS/min_vel_x" value="0.0" if="$(arg move_forward_only)" />
+  </node>
+
+  <!--node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+    <param name="base_local_planner" value="teb_local_planner/TebLocalPlannerROS" />
+    <rosparam file="$(find medbot)/param/costmap_common_params.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find medbot)/param/costmap_common_params.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find medbot)/param/local_costmap_params.yaml" command="load" />
+    <rosparam file="$(find medbot)/param/global_costmap_params.yaml" command="load" />
+    <rosparam file="$(find medbot)/param/move_base_params.yaml" command="load" />
+    <rosparam file="$(find medbot)/param/teb_local_planner_params.yaml" command="load" />
+    <remap from="cmd_vel" to="$(arg cmd_vel_topic)"/>
+    <remap from="odom" to="$(arg odom_topic)"/>
+    <param name="TebLocalPlannerROS/max_vel_x_backwards" value="0.0" if="$(arg move_forward_only)" />
+  </node-->
+
+  <!-- rviz -->
+  <node pkg="rviz" type="rviz" name="rviz" required="true"
+    args="-d $(find medbot)/rviz/navigation.rviz"/>
+
+</launch>
+

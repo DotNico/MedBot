@@ -1,0 +1,13 @@
+obstacle_range: 3
+raytrace_range: 3.5
+
+footprint: [[-0.17, -0.25], [-0.17, 0.25], [0.45, 0.25], [0.45, -0.25]]
+
+#Cost function parameters
+inflation_radius: 0.4
+cost_scaling_factor: 25.0
+
+map_type: costmap
+observation_sources: laser_scan_sensor #point_cloud_sensor
+laser_scan_sensor: {sensor_frame: hokuyo, data_type: LaserScan, topic: /mybot/laser/scan, marking: true, clearing: true}
+
